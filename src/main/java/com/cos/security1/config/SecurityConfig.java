@@ -32,15 +32,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.authorizeRequests()
-                .antMatchers("/user/**").authenticated()   // 인증만 되면 들어갈 수 있는 주소!!
+                // 인증만 되면 들어갈 수 있는 주소!!
+                .antMatchers("/user/**").authenticated()
+                // manager 접근시 'ROLE_ADMIN', 'ROLE_MANAGER'권한이 있는 사람만 접근가능
                 .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+                // admin 'ROLE_ADMIN' 권한이 있는 사람만 접근가능
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+                // 나머지는 다 접근가능
                 .anyRequest().permitAll()
+                // 권한이 없는페이지로 요청이 들어올때 로그인페이지로 이동(3줄)
                 .and()
                 .formLogin()
                 .loginPage("/loginForm")
-                .loginProcessingUrl("/login") // /login 주소가 호출이 되면 시큐리티가 낚아채서 대신 로그인을 진행해준다.
-                .defaultSuccessUrl("/") // login 완료되면 "/"호출
+                // /login 주소가 호출이 되면 시큐리티가 낚아채서 대신 로그인을 진행해준다.
+                .loginProcessingUrl("/login")
+                // login 완료되면 "/"호출해줄건데 특정페이지로 접근시 로그인을 하게 될 경우 다시 그 페이지로 보내줌(ex:admin -> loginForm -> admin)
+                .defaultSuccessUrl("/")
                 .and()
                 .oauth2Login()
                 .loginPage("/loginForm")
